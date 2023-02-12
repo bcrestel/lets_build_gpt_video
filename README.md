@@ -1,6 +1,6 @@
-# template_repo
-Template repo for miscellaneous ML project
+Code reformatted from `https://github.com/karpathy/ng-video-lecture`
 
+Dataset `input.txt` is from `https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt`
 
 ## Usage
 
