@@ -1,6 +1,7 @@
-Code reformatted from `https://github.com/karpathy/ng-video-lecture`
+The code in this repo are coding notes taken while following Andrej Karpathy's recent GPT video.
+The original code from Andrej Karpathy can be found at `https://github.com/karpathy/ng-video-lecture`
 
-Dataset `input.txt` is from `https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt`
+Dataset `shakespeare.txt` is from `https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt`
 
 ## Usage
 
