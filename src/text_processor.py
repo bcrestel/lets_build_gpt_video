@@ -1,14 +1,17 @@
 # text_processor.py
 
-from typing import Optional, List, Union
 from pathlib import Path
+from typing import List, Optional, Union
 
-class TextProcessor():
+
+class TextProcessor:
     """Parse a text and provide a few functionalities to work with text"""
 
     def __init__(self, input_path: Union[str, Path], type: Optional[str] = None):
         # process input_path
-        self.input_path = input_path if isinstance(input_path, Path) else Path(input_path)
+        self.input_path = (
+            input_path if isinstance(input_path, Path) else Path(input_path)
+        )
         if self.input_path.suffix == ".txt" or type == "str":
             self.text = self.read_txt(self.input_path)
         else:
@@ -24,9 +27,9 @@ class TextProcessor():
         """encoder: take a string, output a list of integers"""
         return [self.map_string2integer[c] for c in string]
 
-    def convert_integer2strin(self, integers: List[str]):
+    def convert_integer2string(self, integers: List[str]):
         """decoder: take a list of integers, output a string"""
-        return ''.join([self.map_integer2string[i] for i in integers])
+        return "".join([self.map_integer2string[i] for i in integers])
 
     @property
     def vocab_size(self):
@@ -34,6 +37,6 @@ class TextProcessor():
 
     @staticmethod
     def read_txt(input_path: Path):
-        with open(input_path, 'r', encoding='utf-8') as f:
+        with open(input_path, "r", encoding="utf-8") as f:
             text = f.read()
         return text
