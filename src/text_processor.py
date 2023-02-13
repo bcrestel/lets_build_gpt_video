@@ -15,7 +15,7 @@ class TextProcessor:
         if self.input_path.suffix == ".txt" or type == "str":
             self.text = self.read_txt(self.input_path)
         else:
-            raise NotImplemented
+            raise NotImplementedError
         # generate properties about text
         self.chars = sorted(list(set(self.text)))
         self._len_chars = len(self.chars)
