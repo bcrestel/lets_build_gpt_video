@@ -17,7 +17,7 @@ class BiGram(nn.Module):
         """x.shape = (B, T)"""
         logits = self.embedding(x)  # shape (B, T, self.vocab_size)
         return logits
-    
+
     def loss(self, logits: torch.Tensor, y: torch.Tensor):
         """
         logits.shape = (B, T, vocab_size)
@@ -26,5 +26,3 @@ class BiGram(nn.Module):
         logits = logits.view((-1, self.vocab_size))
         y = y.view((-1, self.vocab_size))
         return functional.cross_entropy(logits, y)
-
-
