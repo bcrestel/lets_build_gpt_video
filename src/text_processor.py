@@ -3,8 +3,10 @@
 from pathlib import Path
 from typing import List, Optional, Union
 
+from torch.utils.data import Dataset
 
-class TextProcessor:
+
+class TextProcessor(Dataset):
     """Parse a text and provide a few functionalities to work with text"""
 
     def __init__(self, input_path: Union[str, Path], type: Optional[str] = None):
@@ -40,3 +42,10 @@ class TextProcessor:
         with open(input_path, "r", encoding="utf-8") as f:
             text = f.read()
         return text
+    
+    # TODO: continue here
+    def __len__(self):
+        raise NotImplementedError
+    
+    def __getitem__(self, index):
+        raise NotImplementedError
