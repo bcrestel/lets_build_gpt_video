@@ -30,5 +30,31 @@ class BiGram(nn.Module):
         y = y.view(-1)
         return functional.cross_entropy(logits, y)
 
-    # TODO: Continuere here
-    #def train(self, epochs: int):
+    def train(
+        self, 
+        nb_epochs: int, 
+        text: TextProcessor, 
+        batch_size: int = 32, 
+        block_size: int = 8,
+        learning_rate: float = 1e-2
+        ):
+        optimizer = torch.optim.AdamW(self.parameters(), lr=learning_rate)
+        for ep in range(nb_epochs):
+            print(f"Epoch {ep}")
+            optimizer.zero_grad()
+            x_train, y_train = text.get_batch(
+                batch_size=batch_size, 
+                block_size=block_size,
+                split="train"
+                )
+            x_train = x_train.to(self.device)
+            y_train = y_train.to(self.device)
+            loss = self.loss(logits=self.forward(x_train), y=y_train)
+            loss.grad()
+            optimizer.step()
+
+            # Estimate train and validation loss
+            # TODO: implement deterministic batch implementation of train and validation losses
+            #with torch.no_grad():
+                
+
