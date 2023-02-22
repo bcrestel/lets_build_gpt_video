@@ -70,4 +70,4 @@ class TextProcessor:
         data = self.data_train if split == "train" else self.data_val
         ii = 0
         for ii in range(0, len(data) - batch_size + 1, batch_size):
-            yield data[ii : ii + batch_size], data[ii + 1 : ii + batch_size+1]
+            yield data[ii : ii + batch_size], data[ii + 1 : ii + batch_size + 1]

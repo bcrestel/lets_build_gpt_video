@@ -13,14 +13,20 @@ class BiGram(nn.Module):
     def __init__(self, vocab_size: int, device: Optional[torch.device] = None):
         super().__init__()
         self.vocab_size = vocab_size
-        self.device = (("cuda" if torch.cuda.is_available() else "cpu") if device is None else device)
-        self.embedding = nn.Embedding(self.vocab_size, self.vocab_size, device=self.device)
+        self.device = (
+            ("cuda" if torch.cuda.is_available() else "cpu")
+            if device is None
+            else device
+        )
+        self.embedding = nn.Embedding(
+            self.vocab_size, self.vocab_size, device=self.device
+        )
 
     def forward(self, x: torch.Tensor):
         """x.shape = (B, T)"""
         logits = self.embedding(x)  # shape (B, T, self.vocab_size)
         return logits
-    
+
     def inference(self, idx: torch.Tensor) -> torch.Tensor:
         """Generate a new index given idx (shape 1)"""
         logits = self.embedding(idx)
@@ -66,10 +72,14 @@ class BiGram(nn.Module):
                             batch_size=batch_size,
                             split=split,
                         )
-                        _all_losses = [self.loss(self.forward(bb[0]), bb[1]).item() for bb in text_iterator]
+                        _all_losses = [
+                            self.loss(self.forward(bb[0]), bb[1]).item()
+                            for bb in text_iterator
+                        ]
                         loss_split[split] = sum(_all_losses)
-                    print(f"Epoch {ep}: train_loss = {loss_split['train']}, eval_loss = {loss_split['val']}")
-
+                    print(
+                        f"Epoch {ep}: train_loss = {loss_split['train']}, eval_loss = {loss_split['val']}"
+                    )
 
     def generate(self, max_nb_tokens: int, idx: torch.Tensor):
         idx = idx.to(self.device)
@@ -79,5 +89,3 @@ class BiGram(nn.Module):
             token_idx.append(new_idx.item())
             idx = new_idx
         return token_idx
-        
-
