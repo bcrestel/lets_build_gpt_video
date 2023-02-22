@@ -13,17 +13,19 @@ class BiGram(nn.Module):
     def __init__(self, vocab_size: int, device: Optional[torch.device] = None):
         super().__init__()
         self.vocab_size = vocab_size
-        self.embedding = nn.Embedding(self.vocab_size, self.vocab_size)
-        self.device = (
-            ("cuda" if torch.cuda.is_available() else "cpu")
-            if device is None
-            else device
-        )
+        self.device = (("cuda" if torch.cuda.is_available() else "cpu") if device is None else device)
+        self.embedding = nn.Embedding(self.vocab_size, self.vocab_size, device=self.device)
 
     def forward(self, x: torch.Tensor):
         """x.shape = (B, T)"""
         logits = self.embedding(x)  # shape (B, T, self.vocab_size)
         return logits
+    
+    def inference(self, idx: torch.Tensor) -> torch.Tensor:
+        """Generate a new index given idx (shape 1)"""
+        logits = self.embedding(idx)
+        probs = functional.softmax(logits)
+        return torch.multinomial(probs, num_samples=1).flatten()
 
     def loss(self, logits: torch.Tensor, y: torch.Tensor):
         """
@@ -34,8 +36,6 @@ class BiGram(nn.Module):
         y = y.view(-1)
         return functional.cross_entropy(logits, y)
 
-    # def estimate_total_loss(self, data: torch.Tensor)
-
     def train(
         self,
         nb_epochs: int,
@@ -43,10 +43,10 @@ class BiGram(nn.Module):
         batch_size: int = 32,
         block_size: int = 8,
         learning_rate: float = 1e-2,
+        eval_interval: int = 100,
     ):
         optimizer = torch.optim.AdamW(self.parameters(), lr=learning_rate)
         for ep in range(nb_epochs):
-            print(f"Epoch {ep}")
             optimizer.zero_grad()
             x_train, y_train = text.get_batch(
                 batch_size=batch_size, block_size=block_size, split="train"
@@ -54,9 +54,30 @@ class BiGram(nn.Module):
             x_train = x_train.to(self.device)
             y_train = y_train.to(self.device)
             loss = self.loss(logits=self.forward(x_train), y=y_train)
-            loss.grad()
+            loss.backward()
             optimizer.step()
 
             # Estimate train and validation loss
-            # TODO: implement deterministic batch implementation of train and validation losses
-            # with torch.no_grad():
+            if ep % eval_interval == 0:
+                with torch.no_grad():
+                    loss_split = {}
+                    for split in ["train", "val"]:
+                        text_iterator = text.iterator_all(
+                            batch_size=batch_size,
+                            split=split,
+                        )
+                        _all_losses = [self.loss(self.forward(bb[0]), bb[1]).item() for bb in text_iterator]
+                        loss_split[split] = sum(_all_losses)
+                    print(f"Epoch {ep}: train_loss = {loss_split['train']}, eval_loss = {loss_split['val']}")
+
+
+    def generate(self, max_nb_tokens: int, idx: torch.Tensor):
+        idx = idx.to(self.device)
+        token_idx = [idx.item()]
+        for ii in range(max_nb_tokens):
+            new_idx = self.inference(idx)
+            token_idx.append(new_idx.item())
+            idx = new_idx
+        return token_idx
+        
+
