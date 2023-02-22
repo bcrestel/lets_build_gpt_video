@@ -1,7 +1,7 @@
 # text_processor.py
 
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Iterator
 
 import torch
 
@@ -49,7 +49,12 @@ class TextProcessor:
             text = f.read()
         return text
     
-    def get_batch(self, batch_size: int, block_size: int, split: str = "train"):
+    def get_batch(
+        self, 
+        batch_size: int, 
+        block_size: int, 
+        split: str = "train"
+    ):
         """
         Generate a small batch of data of inputs x and targets y
 
@@ -63,3 +68,9 @@ class TextProcessor:
         x = torch.stack([data[i:i+block_size] for i in idx])
         y = torch.stack([data[i+1:i+block_size+1] for i in idx])
         return x, y
+    
+    def iterator_all(self, batch_size: int, split: str) -> Iterator:
+        data = self.data_train if split == "train" else self.data_val
+        ii = 0
+        for ii in range(len(data) - batch_size, batch_size)
+            yield data[ii:ii+batch_size]

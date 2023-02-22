@@ -29,6 +29,8 @@ class BiGram(nn.Module):
         logits = logits.view(-1, self.vocab_size)
         y = y.view(-1)
         return functional.cross_entropy(logits, y)
+    
+    #def estimate_total_loss(self, data: torch.Tensor)
 
     def train(
         self, 
