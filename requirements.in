@@ -15,6 +15,7 @@ requests
 
 jupyterlab
 jupyterlab_widgets
+ipywidgets
 ipython
 
 mlflow
