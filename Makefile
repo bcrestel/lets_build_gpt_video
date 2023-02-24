@@ -55,7 +55,7 @@ shell: build
 .PHONY : notebook
 notebook: build
 	$(info ***** Starting a notebook *****)
-	$(DOCKER_RUN) -p 8888:8888 $(DOCKER_IMAGE) -c "jupyter notebook --ip=$(hostname -I) --no-browser --allow-root"
+	$(DOCKER_RUN) -p 8888:8888 $(DOCKER_IMAGE) -c "jupyter lab --ip=$(hostname -I) --no-browser --allow-root"
 
 .PHONY : notebook
 mlflow_server: build
