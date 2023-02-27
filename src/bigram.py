@@ -10,17 +10,10 @@ from src.text_processor import TextProcessor
 
 
 class BiGram(nn.Module):
-    def __init__(self, vocab_size: int, device: Optional[torch.device] = None):
+    def __init__(self, vocab_size: int):
         super().__init__()
         self.vocab_size = vocab_size
-        self.device = (
-            ("cuda" if torch.cuda.is_available() else "cpu")
-            if device is None
-            else device
-        )
-        self.embedding = nn.Embedding(
-            self.vocab_size, self.vocab_size, device=self.device
-        )
+        self.embedding = nn.Embedding(self.vocab_size, self.vocab_size)
 
     def forward(self, x: torch.Tensor):
         """x.shape = (B, T)"""
@@ -89,3 +82,7 @@ class BiGram(nn.Module):
             token_idx.append(new_idx.item())
             idx = new_idx
         return token_idx
+
+    @property
+    def device(self):
+        return next(self.parameters()).device
