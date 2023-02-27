@@ -10,17 +10,14 @@ from src.text_processor import TextProcessor
 
 
 class BiGram(nn.Module):
-    def __init__(self, vocab_size: int, dim_token_embedding: int):
+    def __init__(self, vocab_size: int):
         super().__init__()
         self.vocab_size = vocab_size
-        self.dim_token_embedding = dim_token_embedding
-        self.embedding = nn.Embedding(self.vocab_size, dim_token_embedding)
-        self.map_token_embedding_to_token = nn.Linear(self.dim_token_embedding, self.vocab_size)
+        self.embedding = nn.Embedding(self.vocab_size, self.vocab_size)
 
     def forward(self, x: torch.Tensor):
         """x.shape = (B, T)"""
-        token_embeddings = self.embedding(x)  # shape (B, T, self.vocab_size)
-        logits = self.map_token_embedding_to_token(token_embeddings) # shape (B, T, self.dim_token_embedding)
+        logits = self.embedding(x)  # shape (B, T, self.vocab_size)
         return logits
 
     def inference(self, idx: torch.Tensor) -> torch.Tensor:
