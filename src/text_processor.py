@@ -67,6 +67,7 @@ class TextProcessor:
         return x, y
 
     # TODO: Add block_size to iterator_all as this is required by v2.py
+    # should be the same as get_batch but in deterministic manner
     def iterator_all(self, batch_size: int, split: str) -> Iterator:
         data = self.data_train if split == "train" else self.data_val
         ii = 0

@@ -1,6 +1,6 @@
 ###################
 # PARAMETERS TO MODIFY
-IMAGE_NAME = pytorch
+IMAGE_NAME = pytorch4gpt
 IMAGE_TAG = 1.0
 ###################
 # FIXED PARAMETERS
@@ -25,7 +25,7 @@ build: .build
 
 requirements.txt: .build_piptools requirements.in
 	$(info ***** Pinning requirements.txt *****)
-	$(DOCKER_RUN) $(DOCKER_IMAGE_PIPTOOLS) -c "pip-compile --output-file requirements.txt requirements.in"
+	$(DOCKER_RUN) $(DOCKER_IMAGE_PIPTOOLS) -c "pip-compile --resolver=backtracking --output-file requirements.txt requirements.in"
 	@touch requirements.txt
 
 .build_piptools: Dockerfile_piptools
