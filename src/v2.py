@@ -1,5 +1,7 @@
 # n_gram.py
 
+from logging import getLogger
+
 from typing import Optional
 
 import torch
@@ -8,6 +10,7 @@ from torch.nn import functional
 
 from src.text_processor import TextProcessor
 
+logger = getLogger(__name__)
 
 class BiGram(nn.Module):
     def __init__(self, vocab_size: int, dim_token_embedding: int, block_size: int):
@@ -26,13 +29,16 @@ class BiGram(nn.Module):
         self.map_token_embedding_to_token = nn.Linear(self.dim_token_embedding, self.vocab_size)
         self.positional_embedding = nn.Embedding(self.block_size, self.dim_token_embedding)
 
-    def forward(self, token_idx: torch.Tensor):
+    def forward(self, token_idx: torch.Tensor) -> torch.Tensor:
         """Forward pass
 
         Args:
             token_idx (torch.Tensor): idx of the input token; token_idx.shape = (B, block_size)
                 B = batch_size
                 block_size = T in original code
+        
+        Returns:
+            torch.Tensor: logits for the model prediction; has shape (B, self.block_size, self.vocab_size)
         """
         pos_input = torch.arange(self.block_size, device=self.device)
         positional_embeddings = self.embedding(pos_input) # shape (block_size, self.dim_token_embedding)
@@ -61,7 +67,6 @@ class BiGram(nn.Module):
         nb_epochs: int,
         text: TextProcessor,
         batch_size: int = 32,
-        block_size: int = 8,
         learning_rate: float = 1e-2,
         eval_interval: int = 100,
     ):
@@ -69,7 +74,7 @@ class BiGram(nn.Module):
         for ep in range(nb_epochs):
             optimizer.zero_grad()
             x_train, y_train = text.get_batch(
-                batch_size=batch_size, block_size=block_size, split="train"
+                batch_size=batch_size, block_size=self.block_size, split="train"
             )
             x_train = x_train.to(self.device)
             y_train = y_train.to(self.device)
@@ -85,13 +90,16 @@ class BiGram(nn.Module):
                         text_iterator = text.iterator_all(
                             batch_size=batch_size,
                             split=split,
+                            block_size=self.block_size
                         )
-                        _all_losses = [
-                            self.loss(self.forward(bb[0]), bb[1]).item()
-                            for bb in text_iterator
-                        ]
+                        _all_losses = []
+                        for bb in text_iterator:
+                            x, y = bb
+                            model_x = self.forward(x)
+                            logger.debug(f"x.shape = {x.shape}, y.shape={y.shape}, model_x.shape = {model_x.shape}")
+                            _all_losses.append(self.loss(model_x, y).item())
                         loss_split[split] = sum(_all_losses)
-                    print(
+                    logger.info(
                         f"Epoch {ep}: train_loss = {loss_split['train']}, eval_loss = {loss_split['val']}"
                     )
 

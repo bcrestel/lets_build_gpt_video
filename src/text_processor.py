@@ -66,10 +66,10 @@ class TextProcessor:
         y = torch.stack([data[i + 1 : i + block_size + 1] for i in idx])
         return x, y
 
-    # TODO: Add block_size to iterator_all as this is required by v2.py
-    # should be the same as get_batch but in deterministic manner
-    def iterator_all(self, batch_size: int, split: str) -> Iterator:
+    def iterator_all(self, batch_size: int, split: str, block_size: int = 1) -> Iterator:
         data = self.data_train if split == "train" else self.data_val
-        ii = 0
         for ii in range(0, len(data) - batch_size + 1, batch_size):
-            yield data[ii : ii + batch_size], data[ii + 1 : ii + batch_size + 1]
+            idx = range(ii, min(ii + batch_size, len(data)))
+            x = torch.stack([data[i : i + block_size] for i in idx])
+            y = torch.stack([data[i + 1 : i + block_size + 1] for i in idx])
+            yield x, y
