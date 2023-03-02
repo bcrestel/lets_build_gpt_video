@@ -52,6 +52,11 @@ shell: build
 	$(info ***** Creating shell *****)
 	$(DOCKER_RUN) $(DOCKER_IMAGE)
 
+.PHONY : ipython
+ipython: build
+	$(info ***** Starting ipython session *****)
+	$(DOCKER_RUN) $(DOCKER_IMAGE) -c "ipython"
+
 .PHONY : notebook
 notebook: build
 	$(info ***** Starting a notebook *****)

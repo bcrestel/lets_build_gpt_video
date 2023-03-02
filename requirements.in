@@ -12,6 +12,7 @@ isort
 pytest
 pip-tools
 requests
+line_profiler
 
 jupyterlab
 jupyterlab_widgets
