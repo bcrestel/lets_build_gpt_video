@@ -82,6 +82,8 @@ class BiGram(nn.Module):
             loss.backward()
             optimizer.step()
 
+            # TODO: continue profiling that part and optimize it
+            # possibly move to separate routine to profile entire section
             # Estimate train and validation loss
             if ep % eval_interval == 0:
                 with torch.no_grad():
