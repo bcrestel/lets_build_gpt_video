@@ -68,7 +68,8 @@ class BiGram(nn.Module):
         text: TextProcessor,
         batch_size: int = 32,
         learning_rate: float = 1e-2,
-        eval_interval: int = 100,
+        nb_batch_eval: int = 200,
+        eval_period: int = 300,
     ):
         optimizer = torch.optim.AdamW(self.parameters(), lr=learning_rate)
         for ep in range(nb_epochs):
@@ -82,25 +83,21 @@ class BiGram(nn.Module):
             loss.backward()
             optimizer.step()
 
-            # TODO: continue profiling that part and optimize it
-            # possibly move to separate routine to profile entire section
             # Estimate train and validation loss
-            if ep % eval_interval == 0:
+            if ep % eval_period == 0:
                 with torch.no_grad():
                     loss_split = {}
                     for split in ["train", "val"]:
-                        text_iterator = text.iterator_all(
-                            batch_size=batch_size,
-                            split=split,
-                            block_size=self.block_size
-                        )
                         _all_losses = []
-                        for bb in text_iterator:
-                            x, y = bb
-                            model_x = self.forward(x)
-                            logger.debug(f"x.shape = {x.shape}, y.shape={y.shape}, model_x.shape = {model_x.shape}")
-                            _all_losses.append(self.loss(model_x, y).item())
-                        loss_split[split] = sum(_all_losses)
+                        for bb in range(nb_batch_eval):
+                            x_, y_ = text.get_batch(
+                                batch_size=batch_size, block_size=self.block_size, split=split
+                            )
+                            x_ = x_train.to(self.device)
+                            y_ = y_train.to(self.device)
+                            loss_ = self.loss(logits=self.forward(x_), y=y_)
+                            _all_losses.append(loss_.item())
+                        loss_split[split] = sum(_all_losses) / (nb_batch_eval)
                     logger.info(
                         f"Epoch {ep}: train_loss = {loss_split['train']}, eval_loss = {loss_split['val']}"
                     )
