@@ -25,6 +25,9 @@ class ScaledDotProductSelfAttentionHead(nn.Module):
 
         Args:
             x (torch.Tensor): has shape batch, block_size, token_embedding
+
+        Returns:
+            torch.Tensor: shape (batch, block_size, head_size)
         """
         _, block_size, _ = x.shape
         K = self.key_layer(x)
@@ -36,5 +39,21 @@ class ScaledDotProductSelfAttentionHead(nn.Module):
         weights = self.dropout(weights)
 
         V = self.value_layer(x)
-        output = weights @ V # shape (B, block, block) @ (B, block, emb) -> (B, block, emb)
+        output = weights @ V # shape (B, block, block) @ (B, block, head_size) -> (B, block, head_size)
         return output
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, nb_heads: int, dim_token_embedding: int, head_size: int, max_block_size: int, dropout_rate: float = 0.0):
+        self.heads = nn.ModuleList([ScaledDotProductSelfAttentionHead(
+            dim_token_embedding=dim_token_embedding,
+            head_size=head_size,
+            max_block_size=max_block_size,
+            dropout_rate=dropout_rate
+        ) for _ in range(nb_heads)])
+        self.linear = nn.Linear(head_size * nb_heads, dim_token_embedding)
+    
+    def forward(self, x):
+        multihead_outputs = [head(x) for head in self.heads]
+        multihead_output = torch.concatenate(multihead_outputs, dim=-1)
+        out = self.linear(multihead_output)
+        return multihead_output
