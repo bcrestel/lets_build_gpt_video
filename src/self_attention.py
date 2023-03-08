@@ -44,6 +44,7 @@ class ScaledDotProductSelfAttentionHead(nn.Module):
 
 class MultiHeadAttention(nn.Module):
     def __init__(self, nb_heads: int, dim_token_embedding: int, head_size: int, max_block_size: int, dropout_rate: float = 0.0):
+        super().__init__()
         self.heads = nn.ModuleList([ScaledDotProductSelfAttentionHead(
             dim_token_embedding=dim_token_embedding,
             head_size=head_size,
@@ -51,9 +52,11 @@ class MultiHeadAttention(nn.Module):
             dropout_rate=dropout_rate
         ) for _ in range(nb_heads)])
         self.linear = nn.Linear(head_size * nb_heads, dim_token_embedding)
+        self.dropout = nn.Dropout(dropout_rate)
     
     def forward(self, x):
         multihead_outputs = [head(x) for head in self.heads]
-        multihead_output = torch.concatenate(multihead_outputs, dim=-1)
+        multihead_output = torch.cat(multihead_outputs, dim=-1)
         out = self.linear(multihead_output)
+        out = self.dropout(out)
         return multihead_output
