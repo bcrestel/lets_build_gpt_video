@@ -12,6 +12,7 @@ from src.text_processor import TextProcessor
 logger = getLogger(__name__)
 
 
+# TODO: Update model with decoder block and test
 class BiGram(nn.Module):
     def __init__(self, vocab_size: int, dim_token_embedding: int, block_size: int):
         """A bigram model
