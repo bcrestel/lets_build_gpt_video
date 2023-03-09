@@ -66,7 +66,9 @@ class TextProcessor:
         y = torch.stack([data[i + 1 : i + block_size + 1] for i in idx])
         return x, y
 
-    def iterator_all(self, batch_size: int, split: str, block_size: int = 1) -> Iterator:
+    def iterator_all(
+        self, batch_size: int, split: str, block_size: int = 1
+    ) -> Iterator:
         data = self.data_train if split == "train" else self.data_val
         for ii in range(0, len(data) - batch_size + 1, batch_size):
             idx = range(ii, min(ii + batch_size, len(data)))
