@@ -7,16 +7,23 @@ import torch
 import torch.nn as nn
 from torch.nn import functional
 
-from src.text_processor import TextProcessor
 from src.decoder import DecoderBlock
+from src.text_processor import TextProcessor
 
 logger = getLogger(__name__)
 
 
 # TODO: Update model with decoder block and test
 class LanguageModel(nn.Module):
-    def __init__(self, vocab_size: int, dim_token_embedding: int, block_size: int,
-    nb_decoder_blocks: int, nb_heads_per_block: int, dropout_rate: float = 0.0):
+    def __init__(
+        self,
+        vocab_size: int,
+        dim_token_embedding: int,
+        block_size: int,
+        nb_decoder_blocks: int,
+        nb_heads_per_block: int,
+        dropout_rate: float = 0.0,
+    ):
         """A bigram model
 
         Args:
@@ -34,18 +41,25 @@ class LanguageModel(nn.Module):
         self.head_size = self.dim_token_embedding // self.nb_heads_per_block
 
         self.token_embedding_table = nn.Embedding(self.vocab_size, dim_token_embedding)
-        self.positions_embedding_table = nn.Embedding(self.block_size, dim_token_embedding)
+        self.positions_embedding_table = nn.Embedding(
+            self.block_size, dim_token_embedding
+        )
         self.decoder_blocks = nn.ModuleList(
-            *[DecoderBlock(
-                nb_heads=self.nb_heads_per_block, 
-                dim_token_embedding=self.dim_token_embedding,
-                head_size=self.head_size,
-                max_block_size=self.block_size,
-                dropout_rate=self.dropout_rate,
-                ) for _ in range(self.nb_decoder_blocks)]
+            *[
+                DecoderBlock(
+                    nb_heads=self.nb_heads_per_block,
+                    dim_token_embedding=self.dim_token_embedding,
+                    head_size=self.head_size,
+                    max_block_size=self.block_size,
+                    dropout_rate=self.dropout_rate,
+                )
+                for _ in range(self.nb_decoder_blocks)
+            ]
         )
         self.layernorm = nn.LayerNorm(self.dim_token_embedding)
-        self.map_token_embedding_to_token = nn.Linear(self.dim_token_embedding, self.vocab_size)
+        self.map_token_embedding_to_token = nn.Linear(
+            self.dim_token_embedding, self.vocab_size
+        )
 
     def forward(self, token_idx: torch.Tensor) -> torch.Tensor:
         """Forward pass
@@ -59,11 +73,17 @@ class LanguageModel(nn.Module):
             torch.Tensor: logits for the model prediction; has shape (B, self.block_size, self.vocab_size)
         """
         pos_input = torch.arange(self.block_size, device=self.device)
-        positional_embeddings = self.positions_embedding_table(pos_input)  # (block, token_emb)
-        token_embeddings = self.token_embedding_table(token_idx)  # shape (B, block, token_emb)
+        positional_embeddings = self.positions_embedding_table(
+            pos_input
+        )  # (block, token_emb)
+        token_embeddings = self.token_embedding_table(
+            token_idx
+        )  # shape (B, block, token_emb)
         input_embeddings = token_embeddings + positional_embeddings
         x = self.decoder_blocks(input_embeddings)
-        logits = self.map_token_embedding_to_token(self.layernorm(x))  # shape (B, block_size, self.vocab_size)
+        logits = self.map_token_embedding_to_token(
+            self.layernorm(x)
+        )  # shape (B, block_size, self.vocab_size)
         return logits
 
     def inference(self, idx: torch.Tensor) -> torch.Tensor:

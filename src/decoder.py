@@ -1,11 +1,12 @@
 import torch.nn as nn
 
-from src.self_attention import MultiHeadAttention
 from src.feed_forward_network import FFW
+from src.self_attention import MultiHeadAttention
 
 
 class DecoderBlock(nn.Module):
-    def __init__(self
+    def __init__(
+        self,
         nb_heads: int,
         dim_token_embedding: int,
         head_size: int,
@@ -13,22 +14,22 @@ class DecoderBlock(nn.Module):
         dropout_rate: float = 0.0,
     ):
         self.sa_head = MultiHeadAttention(
-            nb_heads = nb_heads,
-            dim_token_embedding = dim_token_embedding,
-            head_size = head_size,
-            max_block_size max_block_size,
-            dropout_rate = dropout_rate,
+            nb_heads=nb_heads,
+            dim_token_embedding=dim_token_embedding,
+            head_size=head_size,
+            max_block_size=max_block_size,
+            dropout_rate=dropout_rate,
         )
-        self.linear = FFW(dim_token_embedding=dim_token_embedding, dropout_rate=dropout_rate)
+        self.linear = FFW(
+            dim_token_embedding=dim_token_embedding, dropout_rate=dropout_rate
+        )
         self.ln1 = nn.LayerNorm(dim_token_embedding)
         self.ln2 = nn.LayerNorm(dim_token_embedding)
 
     def forward(self, x):
-        """_summary_
-
+        """
         Args:
             x (torch.Tensor): shape (B, T, C)
-
         Returns:
             torch.Tensor: shape (B, T, C)
         """
