@@ -81,6 +81,12 @@ class MultiHeadAttention(nn.Module):
         self.dropout = nn.Dropout(dropout_rate)
 
     def forward(self, x):
+        """
+        Args:
+            x (torch.Tensor): shape (B, T, C)
+        Returns:
+            torch.Tensor: shape (B, T, C)
+        """
         multihead_outputs = [head(x) for head in self.heads]
         multihead_output = torch.cat(multihead_outputs, dim=-1)
         out = self.linear(multihead_output)

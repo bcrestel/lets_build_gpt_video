@@ -24,6 +24,14 @@ class DecoderBlock(nn.Module):
         self.ln2 = nn.LayerNorm(dim_token_embedding)
 
     def forward(self, x):
+        """_summary_
+
+        Args:
+            x (torch.Tensor): shape (B, T, C)
+
+        Returns:
+            torch.Tensor: shape (B, T, C)
+        """
         x = x + self.sa_head(self.ln1(x))
         x = x + self.linear(self.ln2(x))
         return x
