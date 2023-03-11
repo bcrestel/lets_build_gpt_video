@@ -1,4 +1,5 @@
 .build
 .build_piptools
 .idea
+.hypothesis
 __pycache__
