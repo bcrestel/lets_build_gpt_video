@@ -13,7 +13,6 @@ from src.text_processor import TextProcessor
 logger = getLogger(__name__)
 
 
-# TODO: Update model with decoder block and test
 class LanguageModel(nn.Module):
     def __init__(
         self,
@@ -44,7 +43,7 @@ class LanguageModel(nn.Module):
         self.positions_embedding_table = nn.Embedding(
             self.block_size, dim_token_embedding
         )
-        self.decoder_blocks = nn.ModuleList(
+        self.decoder_blocks = nn.Sequential(
             *[
                 DecoderBlock(
                     nb_heads=self.nb_heads_per_block,

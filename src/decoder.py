@@ -13,6 +13,7 @@ class DecoderBlock(nn.Module):
         max_block_size: int,
         dropout_rate: float = 0.0,
     ):
+        super().__init__()
         self.sa_head = MultiHeadAttention(
             nb_heads=nb_heads,
             dim_token_embedding=dim_token_embedding,
